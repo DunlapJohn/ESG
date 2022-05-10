@@ -102,8 +102,8 @@ col3.metric(label='Average Number of Trades', value =g_avg )
 
 
 with st.expander('Findings'):
-    st.write(" Portfolio trading activity mirrors modern liberal and conservative tendencies. In addition, there was a distinct spike in trading activity at the begining of covid. \
-            This uptick was most pronounced in the bottom Quintile, possibly indictating\
+    st.write(" Portfolio trading activity mirrors modern liberal and conservative attitudes towards change. In addition, there was a distinct spike in trading activity at the begining of covid. \
+            This uptick was most pronounced in the bottom quintile, possibly indictating\
                 conservatives serve as better signals for capital preservation oppertunities."
                 )
 with st.expander('Moving Forward'):
