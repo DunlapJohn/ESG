@@ -1,18 +1,10 @@
 import string
 import numpy as np
 import pandas as pd
-import yfinance as yf
 import datetime as dt
 import streamlit as st
-import plotly.express as px
-import matplotlib.pyplot as plt
 import pandas_datareader as web
-import plotly.graph_objects as go
-import requests
-from bs4 import BeautifulSoup
-import json
-import requests
-from matplotlib.collections import EllipseCollection
+
 
 
 df1 = pd.read_csv('all_transactions.csv', error_bad_lines=False)
