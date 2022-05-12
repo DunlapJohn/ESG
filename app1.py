@@ -1,8 +1,6 @@
 import pandas as pd
 import streamlit as st
-
-
-
+import numpy as np
 
 df1 = pd.read_csv('all_transactions.csv', error_bad_lines=False)
 df2 = pd.read_csv('2021-house-scorecard-grid-export.csv', error_bad_lines=False)
@@ -14,7 +12,7 @@ df1.columns = df1.columns.str.replace('district', 'District')
 
 
     
-st.header('The Relationship between Climate Conconsciousness and Trading Activity within the House')
+st.header('Climate Conconsciousness and Trading Activity in the House')
 
 
 with st.expander('Why'):
@@ -44,6 +42,7 @@ st.subheader('Representative Lifetime ESG Score')
 st.dataframe(esg) 
 
 df = pd.merge(df2,df1,on='District')
+df['sell'] = np.where(df['type']=='sale_full', 1, 0 )
 
 black = df.loc[df['Black']==True]
 green = df.loc[df['Green']==True]
@@ -55,55 +54,89 @@ black['disclosure_date'] = pd.to_datetime(black['disclosure_date']).dt.strftime(
 
 green["date"] = pd.to_datetime(df["disclosure_date"])
 black["date"] = pd.to_datetime(df["disclosure_date"])
-green['Transactions'] = green['transaction_date']
-black['Transactions'] = black['transaction_date']
+green['Transaction'] = green['transaction_date']
+black['Transaction'] = black['transaction_date']
 
-green=green[['date', 'amount', 'Transactions', 'Member of Congress']]
-black=black[['date', 'amount', 'Transactions', 'Member of Congress']]
+# green=green[['date', 'amount', 'Transactions', 'Member of Congress']]
+# black=black[['date', 'amount', 'Transactions', 'Member of Congress']]
 
 
 
 g_count = green['Member of Congress'].nunique()
 b_count = black['Member of Congress'].nunique()
 
+black_sell = black.groupby(['date'])['sell'].sum()
+black = black.groupby(['date'])['Transaction'].count()
 
-black = black.groupby(['date'])['Transactions'].count()
-green = green.groupby(['date'])['Transactions'].count()
+green_sell = green.groupby(['date'])['sell'].sum()
+green = green.groupby(['date'])['Transaction'].count()
+
+black = pd.merge(black_sell, black, left_index=True, right_index=True)
+black['buy'] = black['Transaction'] - black['sell']
+black = black[['sell','buy']]
+black['sell'] = black['sell'] * -1
+
+green = pd.merge(green_sell, green, left_index=True, right_index=True)
+green['buy'] = green['Transaction'] - green['sell']
+
+green['sell'] = green['sell'] * -1
+
+
+green= green[['sell','buy']]
 
 
 
-st.subheader('Number of Trades within the Lowest ESG Quintile')
+st.subheader('Trading Activity within the Lowest ESG Quintile')
 st.bar_chart(black)
-black=black.cumsum().max()
-b_avg=black/b_count
+black['total']=black['buy']+(black['sell']*-1)
+black['total']=black['total'].cumsum()
+
+
+b_avg=black['total'][-1]/b_count
 
 col1, col2,col3 = st.columns(3)
 col1.metric(label='Number of Members', value =b_count )
-col2.metric(label='Total Number of Trades', value =black )
-col3.metric(label='Average Number of Trades', value =b_avg )
+col2.metric(label='Total Number of Transactions', value=black['total'][-1] )
+col3.metric(label='Average Number of Transactions', value =b_avg.round(2) )
+
+black['buy']=black['buy'].cumsum()
+black['sell']=black['sell'].cumsum()
+
+col1, col2,col3 = st.columns(3)
+col1.metric(label='Total Number of Buys', value =black['buy'][-1]  )
+col2.metric(label='Total Number of Sells', value =(black['sell'][-1]*-1) )
+col3.metric(label='Buy/Sell Ratio', value = (black['buy'][-1] / (black['sell'][-1]*-1 )).round(2) )
 
 
 
 
 
-st.subheader('Number of Trades within the Highest ESG Quintile ')
+st.subheader('Trading Activity within the Highest ESG Quintile ')
 st.bar_chart(green)
-green=green.cumsum().max()
+green['total']=green['buy']+(green['sell']*-1)
+green['total']=green['total'].cumsum()
 
-g_avg=green/g_count
+
+g_avg=green['total'][-1]/g_count
 g_avg=g_avg.round(2)
 
 col1, col2,col3 = st.columns(3)
 col1.metric(label='Number of Members', value =g_count )
-col2.metric(label='Total Number of Trades', value =green )
-col3.metric(label='Average Number of Trades', value =g_avg )
+col2.metric(label='Total Number of Transactions', value =green['total'][-1] )
+col3.metric(label='Average Number of Transactions', value =g_avg )
+green['buy']=green['buy'].cumsum()
+green['sell']=green['sell'].cumsum()
 
+col1, col2,col3 = st.columns(3)
+col1.metric(label='Total Number of Buys', value =green['buy'][-1]  )
+col2.metric(label='Total Number of Sells', value =(green['sell'][-1]*-1) )
+col3.metric(label='Buy/Sell Ratio', value = (green['buy'][-1] / (green['sell'][-1]*-1 )).round(2) )
 
 
 
 with st.expander('Findings'):
-    st.write(" Portfolio trading activity mirrors modern liberal and conservative attitudes towards change. In addition, there was a distinct spike in trading activity at the begining of covid. \
-            This uptick was most pronounced in the bottom quintile, possibly indictating\
+    st.write(" Portfolio trading activity mirrors modern liberal and conservative tendencies. In addition, there was a distinct spike in trading activity at the begining of covid. \
+            This uptick was most pronounced in the bottom Quintile, possibly indictating\
                 conservatives serve as better signals for capital preservation oppertunities."
                 )
 with st.expander('Moving Forward'):
