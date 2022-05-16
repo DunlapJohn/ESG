@@ -128,7 +128,7 @@ green= green[['sell','buy']]
 
 
 
-st.subheader('Trading Activity within the Bottom Fifth of ESG Rated Members')
+st.subheader('Trading Activity of Members Rated 0-19')
 st.bar_chart(black)
 black['total']=black['buy']+(black['sell']*-1)
 black['total']=black['total'].cumsum()
@@ -153,7 +153,7 @@ col3.metric(label='Buy/Sell Ratio', value = (black['buy'][-1] / (black['sell'][-
 
 
 
-st.subheader('Trading Activity within the Highest Fifth of ESG Rated Members')
+st.subheader('Trading Activity of Members Rated 81-100')
 st.bar_chart(green)
 green['total']=green['buy']+(green['sell']*-1)
 green['total']=green['total'].cumsum()
