@@ -69,7 +69,7 @@ avg_g = df2.groupby(['State'])['Lifetime Score'].mean()
 state =pd.merge(avg_g, avg_t, left_index=True, right_index=True)
 state['Transactions']=state['transaction_date']
 df = pd.merge(df2,df1,on='District')
-
+df['State']=df['District'].str[:2]
 esg2 =df.groupby(['Member of Congress'])['transaction_date'].count()
 esg =esg.groupby(['Member of Congress'])['Lifetime Score'].sum()
 
@@ -79,6 +79,43 @@ member['Transactions']=member['transaction_date']
 col1,col2 = st.columns(2)
 col1.dataframe(state[['Transactions', 'Lifetime Score']])
 col2.dataframe(member[['Transactions', 'Lifetime Score']]) 
+
+col1, col2 = st.columns(2)
+text = col1.text_input('Input a States Abbreviation', 'VA')
+df1['search'] = np.where(df1['State']==text,1,0)
+search = df1.loc[df1['search']==True]
+search =search['ticker']
+
+def most_frequent(search):
+    occurence_count = Counter(search)
+    return occurence_count.most_common(1)[0][0]
+col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(search))
+
+df2['life'] = np.where(df2['State']==text,1,0)
+life = df2.loc[df2['life']==True]
+life = life['Lifetime Score'] 
+
+col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
+
+
+
+text = col2.text_input('Input a Respresentatives Name: Last, First', 'Fallon, Pat')
+df['search'] = np.where(df['Member of Congress']==text,1,0)
+search = df.loc[df['search']==True]
+search =search['ticker']
+
+def most_frequent(search):
+    occurence_count = Counter(search)
+    return occurence_count.most_common(1)[0][0]
+col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(search))
+
+df2['life'] = np.where(df2['Member of Congress']==text,1,0)
+life = df2.loc[df2['life']==True]
+life = life['Lifetime Score'] 
+
+col2.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
+
+
 
 
 
