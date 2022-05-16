@@ -3,6 +3,7 @@ import streamlit as st
 import numpy as np
 from collections import Counter
 
+
 st.set_page_config(
      page_title="Algo Trading",
      page_icon="",
@@ -56,7 +57,7 @@ df2['R']  = np.where(df2['Party']=='R', 1, -1 )
 df2['Black']= df2['Lifetime Score'] < 20
 df2['Green'] = df2['Lifetime Score'] > 80
 housestatus=housestatus.round(2)
-st.subheader('House Data by both State and Member')
+
 df1['State']=df1['District'].str[:2]
 df2['State']=df2['District'].str[:2]
 
@@ -76,44 +77,57 @@ esg =esg.groupby(['Member of Congress'])['Lifetime Score'].sum()
 member = pd.merge(esg, esg2, left_index=True, right_index=True)
 
 member['Transactions']=member['transaction_date']
-col1,col2 = st.columns(2)
-col1.dataframe(state[['Transactions', 'Lifetime Score']])
-col2.dataframe(member[['Transactions', 'Lifetime Score']]) 
+
+st.subheader('House Trading and ESG Data by State')
+with st.expander(' Full List of States'):
+    st.dataframe(state[['Transactions', 'Lifetime Score']])
+
 
 col1, col2 = st.columns(2)
 text = col1.text_input('Input a States Abbreviation', 'VA')
 df1['search'] = np.where(df1['State']==text,1,0)
 search = df1.loc[df1['search']==True]
-search =search['ticker']
+searcht =search['ticker']
 
-def most_frequent(search):
-    occurence_count = Counter(search)
+def most_frequent(searcht):
+    occurence_count = Counter(searcht)
     return occurence_count.most_common(1)[0][0]
-col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(search))
+col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searcht))
 
 df2['life'] = np.where(df2['State']==text,1,0)
 life = df2.loc[df2['life']==True]
 life = life['Lifetime Score'] 
 
 col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
+search['Transactions']=search['transaction_date']
+chart=search.groupby(['disclosure_year'])['Transactions'].count()
+col2.bar_chart(chart)
+
+st.subheader('House Trading and ESG Data by Member')
+with st.expander(' Full List of Respresentatives'):
+    st.dataframe(member[['Transactions', 'Lifetime Score']])
 
 
-
-text = col2.text_input('Input a Respresentatives Name: Last, First', 'Fallon, Pat')
+col1, col2 = st.columns(2)
+text = col1.text_input('Input a Respresentatives Name: Last, First', 'Fallon, Pat')
 df['search'] = np.where(df['Member of Congress']==text,1,0)
 search = df.loc[df['search']==True]
-search =search['ticker']
+searchg =search['ticker']
 
-def most_frequent(search):
-    occurence_count = Counter(search)
+def most_frequent(searchg):
+    occurence_count = Counter(searchg)
     return occurence_count.most_common(1)[0][0]
-col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(search))
+col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searchg))
 
 df2['life'] = np.where(df2['Member of Congress']==text,1,0)
 life = df2.loc[df2['life']==True]
 life = life['Lifetime Score'] 
 
-col2.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
+
+col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
+search['Transactions']=search['transaction_date']
+chart=search.groupby(['disclosure_year'])['Transactions'].count()
+col2.bar_chart(chart)
 
 
 
