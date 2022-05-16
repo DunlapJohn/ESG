@@ -4,6 +4,7 @@ import numpy as np
 from collections import Counter
 
 
+
 st.set_page_config(
      page_title="Algo Trading",
      page_icon="",
@@ -32,7 +33,7 @@ df1.columns = df1.columns.str.replace('district', 'District')
 
     
 st.header('Climate Conconsciousness and Trading Activity in the House')
-
+st.markdown("***")
 
 with st.expander('Why'):
     st.write(" The compliance enviromental commondities market will likely become a trillion dollar relatugated market within the next 50 years. \
@@ -77,7 +78,7 @@ esg =esg.groupby(['Member of Congress'])['Lifetime Score'].sum()
 member = pd.merge(esg, esg2, left_index=True, right_index=True)
 
 member['Transactions']=member['transaction_date']
-
+st.markdown("***")
 st.subheader('House Trading and ESG Data by State')
 with st.expander(' Full List of States'):
     st.dataframe(state[['Transactions', 'Lifetime Score']])
@@ -102,6 +103,8 @@ col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
 search['Transactions']=search['transaction_date']
 chart=search.groupby(['disclosure_year'])['Transactions'].count()
 col2.bar_chart(chart)
+
+st.markdown("***")
 
 st.subheader('House Trading and ESG Data by Member')
 with st.expander(' Full List of Respresentatives'):
@@ -177,7 +180,7 @@ green['sell'] = green['sell'] * -1
 green= green[['sell','buy']]
 
 
-
+st.markdown("***")
 
 st.subheader('Trading Activity of Members Rated 0-19')
 st.bar_chart(black)
@@ -202,7 +205,7 @@ col3.metric(label='Buy/Sell Ratio', value = (black['buy'][-1] / (black['sell'][-
 
 
 
-
+st.markdown("***")
 
 st.subheader('Trading Activity of Members Rated 81-100')
 st.bar_chart(green)
@@ -225,7 +228,7 @@ col1.metric(label='Total Number of Buys', value =green['buy'][-1]  )
 col2.metric(label='Total Number of Sells', value =(green['sell'][-1]*-1) )
 col3.metric(label='Buy/Sell Ratio', value = (green['buy'][-1] / (green['sell'][-1]*-1 )).round(2) )
 
-
+st.markdown("***")
 
 with st.expander('Findings'):
     st.write(" Portfolio trading activity mirrors modern liberal and conservative tendencies. In addition, there was a distinct spike in trading activity at the begining of covid. \
