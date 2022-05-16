@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 import numpy as np
-
+from collections import Counter
 
 st.set_page_config(
      page_title="Algo Trading",
