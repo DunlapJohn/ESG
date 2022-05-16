@@ -4,16 +4,28 @@ import numpy as np
 from collections import Counter
 
 
-
 st.set_page_config(
      page_title="Algo Trading",
      page_icon="",
      layout="wide"
  )
+with st.sidebar:
+        option =  st.sidebar.selectbox(
+     'Granularity of Transaction History',
+     ('Year', 'Month', 'Day'))
+        less =  st.sidebar.selectbox(
+        'Exaime Members with an ESG Rating of Less Than',
+        (10, 20, 40))
+        great =  st.sidebar.selectbox(
+        'Exaime Members with an ESG Rating of Greater Than',
+        (90, 80, 60))
+
+
 
 
 df1 = pd.read_csv('all_transactions.csv', error_bad_lines=False)
 df2 = pd.read_csv('2021-house-scorecard-grid-export.csv', error_bad_lines=False)
+
 
 
 
@@ -55,8 +67,8 @@ with st.expander(' Methodology'):
                             total transactions were factored into analysis."
                 )
 df2['R']  = np.where(df2['Party']=='R', 1, -1 )
-df2['Black']= df2['Lifetime Score'] < 20
-df2['Green'] = df2['Lifetime Score'] > 80
+df2['Black']= df2['Lifetime Score'] < less
+df2['Green'] = df2['Lifetime Score'] > great
 housestatus=housestatus.round(2)
 
 df1['State']=df1['District'].str[:2]
@@ -71,6 +83,10 @@ avg_g = df2.groupby(['State'])['Lifetime Score'].mean()
 state =pd.merge(avg_g, avg_t, left_index=True, right_index=True)
 state['Transactions']=state['transaction_date']
 df = pd.merge(df2,df1,on='District')
+
+
+
+
 df['State']=df['District'].str[:2]
 esg2 =df.groupby(['Member of Congress'])['transaction_date'].count()
 esg =esg.groupby(['Member of Congress'])['Lifetime Score'].sum()
@@ -84,16 +100,20 @@ with st.expander(' Full List of States'):
     st.dataframe(state[['Transactions', 'Lifetime Score']])
 
 
+
+text = st.text_input('Input a States Abbreviation', 'VA')
+
 col1, col2 = st.columns(2)
-text = col1.text_input('Input a States Abbreviation', 'VA')
 df1['search'] = np.where(df1['State']==text,1,0)
 search = df1.loc[df1['search']==True]
 searcht =search['ticker']
 
+
+
 def most_frequent(searcht):
     occurence_count = Counter(searcht)
     return occurence_count.most_common(1)[0][0]
-col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searcht))
+col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searcht))
 
 df2['life'] = np.where(df2['State']==text,1,0)
 life = df2.loc[df2['life']==True]
@@ -101,8 +121,14 @@ life = life['Lifetime Score']
 
 col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
 search['Transactions']=search['transaction_date']
-chart=search.groupby(['disclosure_year'])['Transactions'].count()
-col2.bar_chart(chart)
+
+
+search['transaction_date'] = pd.to_datetime(search['transaction_date']).dt.strftime('%m/%Y')
+search['Month']  = search['transaction_date']
+search['Year'] = search['disclosure_year']
+search['Day'] = search['Transactions']
+chart=search.groupby([option])['Transactions'].count()
+st.bar_chart(chart)
 
 st.markdown("***")
 
@@ -111,8 +137,14 @@ with st.expander(' Full List of Respresentatives'):
     st.dataframe(member[['Transactions', 'Lifetime Score']])
 
 
+
+text = st.text_input('Input a Respresentatives Name: Last, First', 'Fallon, Pat')
+
 col1, col2 = st.columns(2)
-text = col1.text_input('Input a Respresentatives Name: Last, First', 'Fallon, Pat')
+df1['search'] = np.where(df1['State']==text,1,0)
+search = df1.loc[df1['search']==True]
+searcht =search['ticker']
+
 df['search'] = np.where(df['Member of Congress']==text,1,0)
 search = df.loc[df['search']==True]
 searchg =search['ticker']
@@ -120,7 +152,7 @@ searchg =search['ticker']
 def most_frequent(searchg):
     occurence_count = Counter(searchg)
     return occurence_count.most_common(1)[0][0]
-col1.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searchg))
+col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searchg))
 
 df2['life'] = np.where(df2['Member of Congress']==text,1,0)
 life = df2.loc[df2['life']==True]
@@ -129,8 +161,13 @@ life = life['Lifetime Score']
 
 col1.metric(label = text+'s Lifetime Score', value=life.mean().round(2))
 search['Transactions']=search['transaction_date']
-chart=search.groupby(['disclosure_year'])['Transactions'].count()
-col2.bar_chart(chart)
+search['transaction_date'] = pd.to_datetime(search['transaction_date']).dt.strftime('%m/%Y')
+
+search['Month']  = search['transaction_date']
+search['Year'] = search['disclosure_year']
+search['Day'] = search['Transactions']
+chart=search.groupby([option])['Transactions'].count()
+st.bar_chart(chart)
 
 
 
@@ -160,11 +197,20 @@ black['Transaction'] = black['transaction_date']
 g_count = green['Member of Congress'].nunique()
 b_count = black['Member of Congress'].nunique()
 
-black_sell = black.groupby(['date'])['sell'].sum()
-black = black.groupby(['date'])['Transaction'].count()
+black['Month']  = black['disclosure_date']
+black['Year'] = black['disclosure_year']
+black['Day'] = black['date']
 
-green_sell = green.groupby(['date'])['sell'].sum()
-green = green.groupby(['date'])['Transaction'].count()
+black_sell = black.groupby([option])['sell'].sum()
+black = black.groupby([option])['Transaction'].count()
+
+
+green['Month']  = green['disclosure_date']
+green['Year'] = green['disclosure_year']
+green['Day'] = green['date']
+
+green_sell = green.groupby([option])['sell'].sum()
+green = green.groupby([option])['Transaction'].count()
 
 black = pd.merge(black_sell, black, left_index=True, right_index=True)
 black['buy'] = black['Transaction'] - black['sell']
@@ -182,51 +228,50 @@ green= green[['sell','buy']]
 
 st.markdown("***")
 
-st.subheader('Trading Activity of Members Rated 0-19')
+st.subheader('Trading Activity of Members Rated Less Than Selected' )
 st.bar_chart(black)
 black['total']=black['buy']+(black['sell']*-1)
 black['total']=black['total'].cumsum()
-
-
-b_avg=black['total'][-1]/b_count
-
-col1, col2,col3 = st.columns(3)
-col1.metric(label='Number of Members', value =b_count )
-col2.metric(label='Total Number of Transactions', value=black['total'][-1] )
-col3.metric(label='Average Number of Transactions', value =b_avg.round(2) )
 
 black['buy']=black['buy'].cumsum()
 black['sell']=black['sell'].cumsum()
 
 col1, col2,col3 = st.columns(3)
-col1.metric(label='Total Number of Buys', value =black['buy'][-1]  )
-col2.metric(label='Total Number of Sells', value =(black['sell'][-1]*-1) )
-col3.metric(label='Buy/Sell Ratio', value = (black['buy'][-1] / (black['sell'][-1]*-1 )).round(2) )
+col1.metric(label='Total Number of Buys', value =black['buy'].max()  )
+col2.metric(label='Total Number of Sells', value =(black['sell'].min()*-1) )
+col3.metric(label='Total Number of Transactions', value=black['total'].max() )
 
+
+
+
+col1,col2, col3,col4 = st.columns(4)
+col2.metric(label='Number of Members', value =b_count )
+col3.metric(label='Buy/Sell Ratio', value = (black['buy'].max() / (black['sell'].min()*-1 )).round(2) )
 
 
 st.markdown("***")
 
-st.subheader('Trading Activity of Members Rated 81-100')
+st.subheader('Trading Activity of Members Rated Greater Than Selected')
 st.bar_chart(green)
 green['total']=green['buy']+(green['sell']*-1)
 green['total']=green['total'].cumsum()
 
 
-g_avg=green['total'][-1]/g_count
-g_avg=g_avg.round(2)
 
+green['buy']= green['buy'].cumsum()
+green['sell']= green['sell'].cumsum()
 col1, col2,col3 = st.columns(3)
-col1.metric(label='Number of Members', value =g_count )
-col2.metric(label='Total Number of Transactions', value =green['total'][-1] )
-col3.metric(label='Average Number of Transactions', value =g_avg )
-green['buy']=green['buy'].cumsum()
-green['sell']=green['sell'].cumsum()
+col1.metric(label='Total Number of Buys', value =green['buy'].max()  )
+col2.metric(label='Total Number of Sells', value =(green['sell'].min()*-1) )
+col3.metric(label='Total Number of Transactions', value =green['total'].max())
 
-col1, col2,col3 = st.columns(3)
-col1.metric(label='Total Number of Buys', value =green['buy'][-1]  )
-col2.metric(label='Total Number of Sells', value =(green['sell'][-1]*-1) )
-col3.metric(label='Buy/Sell Ratio', value = (green['buy'][-1] / (green['sell'][-1]*-1 )).round(2) )
+
+
+
+col1,col2, col3,col4 = st.columns(4)
+
+col2.metric(label='Number of Members', value =g_count )
+col3.metric(label='Buy/Sell Ratio', value = (green['buy'].max() / (green['sell'].min()*-1 )).round(2) )
 
 st.markdown("***")
 
