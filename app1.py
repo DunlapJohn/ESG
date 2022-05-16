@@ -2,9 +2,27 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 
+
+st.set_page_config(
+     page_title="Algo Trading",
+     page_icon="",
+     layout="wide"
+ )
+
+
 df1 = pd.read_csv('all_transactions.csv', error_bad_lines=False)
 df2 = pd.read_csv('2021-house-scorecard-grid-export.csv', error_bad_lines=False)
+
+
+
+
+
+
+
+
+
 housestatus=df2['Lifetime Score'].mean()
+
 
 esg=df2[['Member of Congress','Lifetime Score']]
 
@@ -34,14 +52,38 @@ with st.expander(' Methodology'):
                         from a 400% increase to a complete exit, thus a total USD volume metric was deemed too noisy. Only \
                             total transactions were factored into analysis."
                 )
-
+df2['R']  = np.where(df2['Party']=='R', 1, -1 )
 df2['Black']= df2['Lifetime Score'] < 20
 df2['Green'] = df2['Lifetime Score'] > 80
 housestatus=housestatus.round(2)
-st.subheader('Representative Lifetime ESG Score')
-st.dataframe(esg) 
+st.subheader('House Data by both State and Member')
+df1['State']=df1['District'].str[:2]
+df2['State']=df2['District'].str[:2]
 
+
+avg_t=df1.groupby(['State'])['transaction_date'].count()
+avg_g = df2.groupby(['State'])['Lifetime Score'].mean()
+
+
+
+state =pd.merge(avg_g, avg_t, left_index=True, right_index=True)
+state['Transactions']=state['transaction_date']
 df = pd.merge(df2,df1,on='District')
+
+esg2 =df.groupby(['Member of Congress'])['transaction_date'].count()
+esg =esg.groupby(['Member of Congress'])['Lifetime Score'].sum()
+
+member = pd.merge(esg, esg2, left_index=True, right_index=True)
+
+member['Transactions']=member['transaction_date']
+col1,col2 = st.columns(2)
+col1.dataframe(state[['Transactions', 'Lifetime Score']])
+col2.dataframe(member[['Transactions', 'Lifetime Score']]) 
+
+
+
+
+
 df['sell'] = np.where(df['type']=='sale_full', 1, 0 )
 
 black = df.loc[df['Black']==True]
@@ -59,7 +101,6 @@ black['Transaction'] = black['transaction_date']
 
 # green=green[['date', 'amount', 'Transactions', 'Member of Congress']]
 # black=black[['date', 'amount', 'Transactions', 'Member of Congress']]
-
 
 
 g_count = green['Member of Congress'].nunique()
@@ -86,7 +127,8 @@ green= green[['sell','buy']]
 
 
 
-st.subheader('Trading Activity within the Lowest ESG Quintile')
+
+st.subheader('Trading Activity within the Bottom Fifth of ESG Rated Members')
 st.bar_chart(black)
 black['total']=black['buy']+(black['sell']*-1)
 black['total']=black['total'].cumsum()
@@ -111,7 +153,7 @@ col3.metric(label='Buy/Sell Ratio', value = (black['buy'][-1] / (black['sell'][-
 
 
 
-st.subheader('Trading Activity within the Highest ESG Quintile ')
+st.subheader('Trading Activity within the Highest Fifth of ESG Rated Members')
 st.bar_chart(green)
 green['total']=green['buy']+(green['sell']*-1)
 green['total']=green['total'].cumsum()
