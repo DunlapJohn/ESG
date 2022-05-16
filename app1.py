@@ -49,10 +49,10 @@ st.markdown("***")
 
 with st.expander('Why'):
     st.write(" The compliance enviromental commondities market will become a higly regulated trillion dollar market within the next 50 years. \
-        The relationship between ESG focused Members and their portfolio could provide insights to their enviromental commitment. I beleived that US Representatives who voted consistently for\
+        The relationship between ESG focused Members and their portfolio could provide insights to their enviromental commitment. I believed that US Representatives who voted consistently for\
              enviromental protection would have sustainably themed portfolio holdings which were \
-            grounded in longterm ESG conviction. However, after combining the House's Envivromental Score-cards\
-                and the Stock Watcher historical trading activity of representatives, data suggests \
+            grounded in longterm conviction. However, after joining the House's Envivromental Score-cards\
+                and the Stock trading history of Representatives, data suggests \
              that the upper quintile of Climate/ESG rated Representatives traded in greater volume and \
             more frequently than the bottom quintile.  \
               While, much more could be research, it appears when their financial security is on the line, 'climate' Members do not rely on a long-term investment strategy."         
