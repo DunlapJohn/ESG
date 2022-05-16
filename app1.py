@@ -14,10 +14,10 @@ with st.sidebar:
      'Granularity of Transaction History',
      ('Year', 'Month', 'Day'))
         less =  st.sidebar.selectbox(
-        'Examine Members with an ESG Rating < ',
+        'Examine Members with an ESG Rating  < ',
         (10, 20, 40))
         great =  st.sidebar.selectbox(
-        'Examine Members with an ESG Rating > ',
+        'Examine Members with an ESG Rating  > ',
         (90, 80, 60))
 
 
