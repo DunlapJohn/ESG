@@ -106,7 +106,7 @@ text = st.text_input('Input a States Abbreviation', 'VA')
 col1, col2 = st.columns(2)
 df1['search'] = np.where(df1['State']==text,1,0)
 search = df1.loc[df1['search']==True]
-searcht =search['ticker']
+searcht =search['asset_description']
 
 
 
