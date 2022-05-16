@@ -48,10 +48,10 @@ st.header('Climate Conconsciousness and Trading Activity in the House')
 st.markdown("***")
 
 with st.expander('Why'):
-    st.write(" The compliance enviromental commondities market will likely become a trillion dollar relatugated market within the next 50 years. \
-        The relationship between climate focused Members and their portfolio could provide insights to their enviromental commitment. I beleived that US Representatives who voted consistently for\
-             enviromental protection would have sustainable themed longterm portfolio holdings which were \
-            grounded in ESG conviction. However, after combining the House's Envivromental Score-cards\
+    st.write(" The compliance enviromental commondities market will become a higly regulated trillion dollar market within the next 50 years. \
+        The relationship between ESG focused Members and their portfolio could provide insights to their enviromental commitment. I beleived that US Representatives who voted consistently for\
+             enviromental protection would have sustainably themed portfolio holdings which were \
+            grounded in longterm ESG conviction. However, after combining the House's Envivromental Score-cards\
                 and the Stock Watcher historical trading activity of representatives, data suggests \
              that the upper quintile of Climate/ESG rated Representatives traded in greater volume and \
             more frequently than the bottom quintile.  \
@@ -60,11 +60,11 @@ with st.expander('Why'):
 with st.expander(' Methodology'):
     st.write(" The data from Stock Watchers aggergated trades excecuted on behlf of US Representatives. \
             The measurement of the total USD volume of trades was considered; however, the reporting criteria  \
-                for trading activity requires equity positions must be reported within a speicifed USD range. \
-                    In addition, many congressional members took positions on bothsides of in a particular \
-                        equity market. Given that mambers only have to report within a broad range, their final position could range \
-                        from a 400% increase to a complete exit, thus a total USD volume metric was deemed too noisy. Only \
-                            total transactions were factored into analysis."
+                only required a range. \
+                    In addition, many congressional members bought and sold positions within the same range. \
+                        Given such a broad range, Member's final positions could extend \
+                        to 400% increase or to a complete exit, thus a total USD volume was deemed too noisy. Only \
+                            the total number of transactions were factored into analysis."
                 )
 df2['R']  = np.where(df2['Party']=='R', 1, -1 )
 df2['Black']= df2['Lifetime Score'] < less
