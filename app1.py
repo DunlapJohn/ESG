@@ -113,7 +113,7 @@ searcht =search['ticker']
 def most_frequent(searcht):
     occurence_count = Counter(searcht)
     return occurence_count.most_common(1)[0][0]
-col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searcht))
+col2.metric(label = text+'s Most Frequently Traded Asset', value=most_frequent(searcht))
 
 df2['life'] = np.where(df2['State']==text,1,0)
 life = df2.loc[df2['life']==True]
@@ -147,12 +147,12 @@ searcht =search['ticker']
 
 df['search'] = np.where(df['Member of Congress']==text,1,0)
 search = df.loc[df['search']==True]
-searchg =search['ticker']
+searchg =search['asset_description']
 
 def most_frequent(searchg):
     occurence_count = Counter(searchg)
     return occurence_count.most_common(1)[0][0]
-col2.metric(label = text+'s Most Frequently Traded Stock Ticker: -- Is Not listed', value=most_frequent(searchg))
+col2.metric(label = text+'s Most Frequently Traded Asset', value=most_frequent(searchg))
 
 df2['life'] = np.where(df2['Member of Congress']==text,1,0)
 life = df2.loc[df2['life']==True]
@@ -168,6 +168,7 @@ search['Year'] = search['disclosure_year']
 search['Day'] = search['Transactions']
 chart=search.groupby([option])['Transactions'].count()
 st.bar_chart(chart)
+
 
 
 
